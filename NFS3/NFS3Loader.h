@@ -22,12 +22,14 @@
 #include "Shared/HRZ/HrzFile.h"
 
 namespace LibOpenNFS::NFS3 {
-    constexpr glm::vec3 SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    constexpr glm::vec3 SCALE_FACTOR(-0.1f, 0.1, 0.1f);
 
     class Loader {
       public:
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath);
         static Track LoadTrack(std::string const &trackBasePath);
+
+        static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath);
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
