@@ -98,6 +98,46 @@ namespace LibOpenNFS::NFS3 {
         return track;
     }
 
+    FedataFile Loader::LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath) {
+        LogInfo("Loading NFS3 car menu data from %s into %s", carBasePath.c_str(), carOutPath.c_str());
+
+        std::filesystem::path p(carBasePath);
+        std::string carName = p.filename().string();
+        std::string const fedataFileName = "fedata.eng";
+        std::stringstream vivPath, fcePath, fedataPath, carpPath;
+        vivPath << carBasePath << "/car.viv";
+        fedataPath << carOutPath << "/" << fedataFileName;
+
+        Shared::VivArchive vivFile;
+        FedataFile fedataFile;
+
+        if (std::filesystem::exists(fedataPath.str())) {
+            LogInfo("Fedata file has already been extracted to %s, skipping", carOutPath.c_str());
+        } else {
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::ExtractFile(carOutPath, vivFile, fedataFileName),
+                   "Could not extract fedata file from VIV file: " << vivPath.str() << "to: " << carOutPath);
+        }
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
+            LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
+        }
+
+        return fedataFile;
+    }
+
+    TextFile Loader::LoadMenuText(std::string const &textBasePath) {
+        std::stringstream textPath;
+        std::string const textFileName = "text.eng";
+        textPath << textBasePath << "/" << textFileName;
+
+        TextFile textFile;
+        if (!TextFile::Load(textPath.str(), textFile)) {
+            LogWarning("Could not load Text file: %s", textPath.str().c_str());
+        }
+
+        return textFile;
+    }
+
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile) {
         LogInfo("Parsing FCE File into ONFS Structures");
 
